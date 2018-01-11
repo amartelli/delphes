@@ -292,7 +292,16 @@ void ExRootResult::Print(const char *format)
       }
     }
 
-    canvas->Print(name + "." + format);
+    //    std::cout << " folder + co = " << format + name + ".png" << std::endl;    
+  
+    canvas->Print(format + name + ".png");
+    canvas->Print(format + name + ".pdf");
+    gPad->SetLogy();
+    canvas->Print(format + name +  "_logY.png");
+    canvas->Print(format + name +  "_logY.pdf");
+    
+
+    //    canvas->Print(name + "." + format);
   }
 }
 
