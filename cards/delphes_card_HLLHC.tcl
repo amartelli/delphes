@@ -26,6 +26,7 @@ set ExecutionPath {
   DenseMergeTracks
   TrackMergerProp  
   TrackMerger
+  TrackSmearing
 
   ECal
   HCal
@@ -88,7 +89,7 @@ module ParticlePropagator ParticlePropagator {
   set HalfLength 3.25
 
   # magnetic field
-  set Bz 3.0
+  set Bz 3.8
 }
 
 ####################################
@@ -476,7 +477,7 @@ module ParticlePropagator DenseProp {
   set HalfLengthMax 3.25
 
   # magnetic field
-  set Bz 3.0
+  set Bz 3.8
 }
 
 
@@ -499,6 +500,7 @@ module Merger DenseMergeTracks {
 
 module DenseTrackFilter TrackMerger {
   set TrackInputArray TrackMergerProp/tracks
+  #set TrackInputArray TrackSmearing/tracks
   set DenseChargedInputArray DenseMergeTracks/tracks
 
   set TrackOutputArray tracks
@@ -526,13 +528,29 @@ module DenseTrackFilter TrackMerger {
 }
 
 
+################################                                
+# Track impact parameter smearing                               
+################################                                
+
+module TrackSmearing TrackSmearing {
+  set InputArray TrackMerger/tracks
+  set OutputArray tracks
+
+  # magnetic field                                              
+  set Bz 3.8
+
+  source trackResolutionCMS.tcl
+}
+
+
 #############
 #   ECAL
 #############
 
 module SimpleCalorimeter ECal {
   set ParticleInputArray ParticlePropagator/stableParticles
-  set TrackInputArray TrackMerger/tracks
+  #set TrackInputArray TrackMerger/tracks
+  set TrackInputArray TrackSmearing/tracks
 
   set TowerOutputArray ecalTowers
   set EFlowTrackOutputArray eflowTracks
@@ -822,6 +840,7 @@ module FastJetFinder GenJetFinder {
   set JetAlgorithm 6
   set ParameterR 0.4
 
+  ##RA changed 15 before  
   set JetPTMin 15.0
 }
 
@@ -842,8 +861,8 @@ module Merger GenMissingET {
 ############
 
 module FastJetFinder FastJetFinder {
-  set InputArray Calorimeter/towers
-#  set InputArray EFlowMerger/eflow
+#  set InputArray Calorimeter/towers
+  set InputArray EFlowMerger/eflow
 
   set OutputArray jets
 
@@ -859,7 +878,8 @@ module FastJetFinder FastJetFinder {
   set SymmetryCutSoftDrop 0.1
   set R0SoftDrop 0.4
 
-  set JetPTMin 30.0
+  ##RA changed 30 before
+  set JetPTMin 20.0
 }
 
 ##################
@@ -1240,22 +1260,23 @@ module TreeWriter TreeWriter {
   add Branch Delphes/allParticles Particle GenParticle
 
   add Branch GenJetFinder/jets GenJet Jet
-  add Branch GenMissingET/momentum GenMissingET MissingET
+  #add Branch GenMissingET/momentum GenMissingET MissingET
 
-  add Branch TrackMerger/tracks Track Track
+  #add Branch TrackMerger/tracks Track Track
+  add Branch TrackSmearing/tracks Track Track
   add Branch Calorimeter/towers Tower Tower
 
   add Branch HCal/eflowTracks EFlowTrack Track
   add Branch ECal/eflowPhotons EFlowPhoton Tower
   add Branch HCal/eflowNeutralHadrons EFlowNeutralHadron Tower
 
-  add Branch UniqueObjectFinder/photons Photon Photon
-  add Branch UniqueObjectFinder/electrons Electron Electron
-  add Branch UniqueObjectFinder/muons Muon Muon
+  #add Branch UniqueObjectFinder/photons Photon Photon
+  #add Branch UniqueObjectFinder/electrons Electron Electron
+  #add Branch UniqueObjectFinder/muons Muon Muon
   add Branch UniqueObjectFinder/jets Jet Jet
 
-  add Branch FatJetFinder/jets FatJet Jet
+  #add Branch FatJetFinder/jets FatJet Jet
 
-  add Branch MissingET/momentum MissingET MissingET
-  add Branch ScalarHT/energy ScalarHT ScalarHT
+  #add Branch MissingET/momentum MissingET MissingET
+  #add Branch ScalarHT/energy ScalarHT ScalarHT
 }
